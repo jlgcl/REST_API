@@ -1,4 +1,6 @@
 const { v4: uuidv4 } = require("./node_modules/uuid/dist");
+const models = require("./models/index.js");
+const routes = require("./routes");
 
 // var createError = require("http-errors");
 var express = require("express");
@@ -43,73 +45,87 @@ app.use(express.urlencoded({ extended: true }));
 //   return res.send(`DELETE HTTP method on user/${req.params.userId} resource`);
 // });
 
-let users = {
-  1: {
-    id: "1",
-    username: "Robin Wieruch",
-  },
-  2: {
-    id: "2",
-    username: "Dave Davids",
-  },
-};
+/* MOVED TO ./models/index.js */
+// let users = {
+//   1: {
+//     id: "1",
+//     username: "Robin Wieruch",
+//   },
+//   2: {
+//     id: "2",
+//     username: "Dave Davids",
+//   },
+// };
 
-let messages = {
-  1: {
-    id: "1",
-    text: "Hello World",
-    userId: "1",
-  },
-  2: {
-    id: "2",
-    text: "By World",
-    userId: "2",
-  },
-};
+// let messages = {
+//   1: {
+//     id: "1",
+//     text: "Hello World",
+//     userId: "1",
+//   },
+//   2: {
+//     id: "2",
+//     text: "By World",
+//     userId: "2",
+//   },
+// };
 
-app.get("/users", (req, res) => {
-  return res.send(Object.values(users));
-});
-app.get("/users/:userId", (req, res) => {
-  return res.send(users[req.params.userId]);
-});
+/* MOVED TO ./ROUTES FILES */
+// app.get("/session", (req, res) => {
+//   return res.send(req.context.models.users[req.context.me.id]);
+// });
+// app.get("/users", (req, res) => {
+//   return res.send(Object.values(req.context.models.users));
+// });
+// app.get("/users/:userId", (req, res) => {
+//   return res.send(req.context.models.users[req.params.userId]);
+// });
 
-app.get("/messages", (req, res) => {
-  return res.send(Object.values(messages));
-});
-app.get("/messages/:messageId", (req, res) => {
-  return res.send(messages[req.params.messageId]);
-});
+// app.get("/messages", (req, res) => {
+//   return res.send(Object.values(req.context.models.messages));
+// });
+// app.get("/messages/:messageId", (req, res) => {
+//   return res.send(req.context.models.messages[req.params.messageId]);
+// });
 
-//customer middleware
+//custom (application-wide) middleware - FOR REST RESOURCES (USERS, MESSAGES)
 app.use((req, res, next) => {
-  req.me = users[1];
+  req.context = {
+    models,
+    me: models.users[1], //set the first user as "me"
+  };
   next();
 });
-app.get("/session", (req, res) => {
-  return res.send(users[req.me.id]);
-});
 
-app.post("/messages", (req, res) => {
-  const id = uuidv4();
-  const message = {
-    id,
-    text: req.body.text,
-    userId: req.me.id,
-  };
+//middleware to use routes (./routes folder)
+app.use("/session", routes.session);
+app.use("/users", routes.user);
+app.use("/messages", routes.message);
 
-  messages[id] = message;
+/* MOVED TO ./ROUTES FOLDER */
+// app.post("/messages", (req, res) => {
+//   const id = uuidv4();
+//   const message = {
+//     id,
+//     text: req.body.text,
+//     userId: req.context.me.id,
+//   };
 
-  return res.send(message);
-});
+//   req.context.models.messages[id] = message;
 
-app.delete("/messages/:messageId", (req, res) => {
-  const { [req.params.messageId]: message, ...otherMessages } = messages;
+//   return res.send(message);
+// });
 
-  message = otherMessages;
+// app.delete("/messages/:messageId", (req, res) => {
+//   const {
+//     [req.params.messageId]: message,
+//     ...otherMessages
+//   } = req.context.models.messages;
 
-  return res.send(message);
-});
+//   req.context.models.message = otherMessages;
+
+//   return res.send(message);
+// });
 
 /// ------------------- N/A -------------------///
 // catch 404 and forward to error handler
