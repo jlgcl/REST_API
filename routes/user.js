@@ -7,7 +7,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:userId", (req, res) => {
-  return res.send(req.context.models.users[req.params.userId]);
+  return res.send(req.context.models.users[req.params.userId]); //req.params.userId is the /:userId
 });
 
 export default router;

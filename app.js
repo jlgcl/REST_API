@@ -91,13 +91,13 @@ app.use(express.urlencoded({ extended: true }));
 //custom (application-wide) middleware - FOR REST RESOURCES (USERS, MESSAGES)
 app.use((req, res, next) => {
   req.context = {
-    models,
-    me: models.users[1], //set the first user as "me"
+    models, //assigns models from ./models/index.js to the req.models (so that it can be used elsewhere such as req.models.messages)
+    me: models.users[1], //set the first user (user[1]) as "req.me" - users are imported from ./routes/index.js
   };
   next();
 });
 
-//middleware to use routes (./routes folder)
+//middleware to use routes (./routes folder) - able to use all the GET/POST functions in the respective routes.
 app.use("/session", routes.session);
 app.use("/users", routes.user);
 app.use("/messages", routes.message);
