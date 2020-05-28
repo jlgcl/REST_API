@@ -22,7 +22,7 @@ router.post("/", (req, res) => {
 
   //REMEMBER: a message post is created using curl CLI (using -H & -d flags)
 
-  req.context.models.messages[id] = message;
+  req.context.models.messages[id] = message; //new id is generated from uuidv4(), then assigned to the new message, then the message is saved to the messages object.
 
   return res.send(message);
 });
